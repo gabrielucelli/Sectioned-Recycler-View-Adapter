@@ -124,6 +124,7 @@ public abstract class SectionedAdapter<H extends RecyclerView.ViewHolder,
         private RecyclerView recyclerView;
         private RecyclerView.LayoutManager mLayoutManager;
         private boolean isHorizontal;
+        private ListAdapter listAdapter;
 
         private ListViewHolder(View itemView, boolean isHorizontal) {
             super(itemView);
@@ -136,12 +137,28 @@ public abstract class SectionedAdapter<H extends RecyclerView.ViewHolder,
             recyclerView.setLayoutManager(mLayoutManager);
         }
 
+        public ListAdapter getListAdapter() {
+            return listAdapter;
+        }
+
         private void onBind(int section) {
-            ListAdapter listAdapter = new ListAdapter(isHorizontal, section);
+            listAdapter = new ListAdapter(isHorizontal, section);
             listAdapter.setList(getListItens(section));
             recyclerView.setAdapter(listAdapter);
         }
 
+    }
+
+    public void notifySectionChanged(int section) {
+        notifyItemChanged(section * 2);
+    }
+
+    public void notifySectionInserted(int section) {
+        notifyItemInserted(section * 2);
+    }
+
+    public void notifySectionRemoved(int section) {
+        notifyItemRemoved(section * 2);
     }
 
     private boolean isSectionHeaderViewType(@Type int viewType) {
