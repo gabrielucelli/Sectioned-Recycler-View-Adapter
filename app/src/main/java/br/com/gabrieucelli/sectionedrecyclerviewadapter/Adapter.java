@@ -1,25 +1,30 @@
 package br.com.gabrieucelli.sectionedrecyclerviewadapter;
 
-import android.support.v7.widget.RecyclerView;
+import android.content.Context;
+import android.support.v4.util.ArrayMap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import br.com.gabrieucelli.sectionedrecyclerviewadapter.viewholders.ItemHorizontalViewHolder;
+import br.com.gabrieucelli.sectionedrecyclerviewadapter.viewholders.ItemVerticalViewHolder;
+import br.com.gabrieucelli.sectionedrecyclerviewadapter.viewholders.SectionViewHolder;
 
 /**
  * Created by Gabriel on 20/05/2017.
  */
 
-public class Adapter extends SectionedAdapter<Adapter.SectionViewHolder, ListViewHolder> {
+public class Adapter extends SectionedAdapter<SectionViewHolder, ItemVerticalViewHolder, ItemHorizontalViewHolder> {
 
-    private Map<String, List<String>> map;
+    private ArrayMap<String, List<String>> map;
+    private Context context;
 
-    public Adapter(Map<String, List<String>> map) {
+    public Adapter(ArrayMap<String, List<String>> map, Context context) {
         this.map = map;
+        this.context = context;
     }
 
     @Override
@@ -29,58 +34,60 @@ public class Adapter extends SectionedAdapter<Adapter.SectionViewHolder, ListVie
 
     @Override
     protected int getTypeList(int section) {
-        return section % 2 == 0 ? TYPE_LIST_VERTICAL : TYPE_LIST_HORIZONTAL;
+        return section % 2 == 0 ? TYPE_LIST_HORIZONTAL : TYPE_LIST_VERTICAL;
+    }
+
+    @Override
+    protected List getListItens(int section) {
+        return map.valueAt(section);
     }
 
     @Override
     protected SectionViewHolder onCreateSectionHeaderViewHolder(ViewGroup parent, int viewType) {
-        final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View v = inflater.inflate(R.layout.item_section, parent, false);
-        return new SectionViewHolder(v);
+
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_section, parent, false);
+
+        return new SectionViewHolder(view);
     }
 
     @Override
-    protected ListViewHolder onCreateListVerticalHolder(ViewGroup parent, int viewType) {
-        final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View v = inflater.inflate(R.layout.item_list, parent, false);
-        ListViewHolder listViewHolder = new ListViewHolder(v);
-        listViewHolder.setLayoutManager(parent.getContext(), false);
-        return listViewHolder;
+    protected ItemVerticalViewHolder onCreateItemListVerticalHolder(ViewGroup parent, int viewType) {
+
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_list_vertical, parent, false);
+
+        return new ItemVerticalViewHolder(view);
     }
 
     @Override
-    protected ListViewHolder onCreateListHorizontalHolder(ViewGroup parent, int viewType) {
-        final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View v = inflater.inflate(R.layout.item_list, parent, false);
-        ListViewHolder listViewHolder = new ListViewHolder(v);
-        listViewHolder.setLayoutManager(parent.getContext(), true);
-        return listViewHolder;
+    protected ItemHorizontalViewHolder onCreateItemListHorizontalHolder(ViewGroup parent, int viewType) {
+
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.item_list_horizontal, parent, false);
+
+        return new ItemHorizontalViewHolder(view);
     }
 
     @Override
     protected void onBindSectionHeaderViewHolder(SectionViewHolder holder, int section) {
-        holder.text.setText("Secao " + section);
+        holder.text.setText("section " + section);
     }
 
     @Override
-    protected void onBindItemVerticalViewHolder(ListViewHolder holder, int section) {
-        holder.setList(Collections.nCopies(10, "Oi"));
-        holder.onBind();
+    protected void onBindItemVerticalViewHolder(ItemVerticalViewHolder holder, int section, int position) {
+        holder.text.setText("item vertical " + section);
     }
 
     @Override
-    protected void onBindItemHorizontalViewHolder(ListViewHolder holder, int section) {
-        holder.setList(Collections.nCopies(10, "Oi"));
-        holder.onBind();
-    }
+    protected void onBindItemHorizontalViewHolder(ItemHorizontalViewHolder holder, final int section, final int position) {
 
-    public class SectionViewHolder extends RecyclerView.ViewHolder {
-
-        public TextView text;
-
-        public SectionViewHolder(View itemView) {
-            super(itemView);
-            text = (TextView) itemView.findViewById(R.id.text_section);
-        }
+        holder.text.setText("item horizontal " + section);
+        holder.setOnClickItemListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(context, "Clickou na secao: " + section + " posicao: " + position, Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
